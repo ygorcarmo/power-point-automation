@@ -47,3 +47,7 @@
 form {
   display: grid;
 }
+
+form>* {
+  margin: 5px;
+}
