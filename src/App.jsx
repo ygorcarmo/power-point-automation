@@ -82,6 +82,14 @@ function App() {
         initialPosition = 1.13;
         nextPosition = 0;
         slide = pptx.addSlide();
+        slide.addImage({
+          x: 8.5,
+          y: 0.06,
+          w: 1.25,
+          h: 0.25,
+          path: lookLogo,
+          objectName: "animated gif",
+        });
       }
     }
 
