@@ -2,8 +2,8 @@ import lookLogo from "./assets/Look_Hor_CMYK_300.jpg";
 import PptxGenJS from "pptxgenjs";
 
 export default async function createPptx(images, title) {
-  console.log("started");
   let pptx = new PptxGenJS();
+
   let firstSlide = pptx.addSlide();
   firstSlide.addText(title, {
     x: 1,
@@ -16,7 +16,7 @@ export default async function createPptx(images, title) {
 
   firstSlide.addImage({
     x: 8.5,
-    y: 0.06,
+    y: 0.1,
     w: 1.25,
     h: 0.25,
     path: lookLogo,
@@ -26,7 +26,7 @@ export default async function createPptx(images, title) {
   let slide = pptx.addSlide();
   slide.addImage({
     x: 8.5,
-    y: 0.06,
+    y: 0.1,
     w: 1.25,
     h: 0.25,
     path: lookLogo,
@@ -34,7 +34,7 @@ export default async function createPptx(images, title) {
   });
 
   let initialXPosition = 1.13;
-  let textYPosition = 0.2;
+  let textYPosition = 0.1;
   let imageYPosition = 2;
   let space = 3;
   let nextPosition = 0;
@@ -42,9 +42,47 @@ export default async function createPptx(images, title) {
   let width = "20%";
   let height = "50%";
 
+  let currentLocation = "";
+  let nextLocation = "";
+
   for (let x = 0; x < images.length; x++) {
-    if (x == 0 || imageCount == 0) {
-      slide.addText(images[x].name, {
+    let currentFilename = images[x].name.split("-");
+    currentLocation = currentFilename[1];
+    let nextFilename = "";
+    if (x < images.length - 1) {
+      nextFilename = images[x + 1].name.split("-");
+      nextLocation = nextFilename[1];
+    }
+
+    if (currentLocation != nextLocation) {
+      slide.addText(currentFilename[0].concat("-", currentFilename[1]), {
+        x: initialXPosition,
+        y: textYPosition,
+        w: width,
+        h: height,
+      });
+      slide.addImage({
+        x: initialXPosition,
+        y: imageYPosition,
+        w: width,
+        h: height,
+        path: images[x].url,
+        objectName: "animated gif",
+      });
+      imageCount = 0;
+      initialXPosition = 1.13;
+      nextPosition = 0;
+      slide = pptx.addSlide();
+      slide.addImage({
+        x: 8.5,
+        y: 0.06,
+        w: 1.25,
+        h: 0.25,
+        path: lookLogo,
+        objectName: "animated gif",
+      });
+    } else if (currentLocation == nextLocation && imageCount == 0) {
+      slide.addText(currentFilename[0].concat("-", currentFilename[1]), {
         x: initialXPosition,
         y: textYPosition,
         w: width,
@@ -62,13 +100,6 @@ export default async function createPptx(images, title) {
       nextPosition = initialXPosition + space;
       imageCount++;
     } else {
-      slide.addText(images[x].name, {
-        x: nextPosition,
-        y: textYPosition,
-        w: width,
-        h: height,
-      });
-
       slide.addImage({
         x: nextPosition,
         y: imageYPosition,
@@ -95,9 +126,7 @@ export default async function createPptx(images, title) {
         objectName: "animated gif",
       });
     }
-
-    console.log("still going");
   }
 
-  pptx.writeFile({ fileName: `${title}.pptx` });
+  return await pptx.writeFile({ fileName: `${title}.pptx` });
 }
