@@ -45,15 +45,14 @@ function App() {
               }
             }}
           >
-            <label htmlFor="campaign">
-              Campaign
-              <input
-                name="campaign"
-                id="campaign"
-                type="text"
-                placeholder="campaign name"
-              />
-            </label>
+            <label htmlFor="campaign">Enter Campaign details:</label>
+            <textarea
+              name="campaign"
+              id="campaign"
+              placeholder="campaign details"
+              rows="4"
+              cols="50"
+            />
             <input type="file" name="files" id="files" multiple />
             <button type="submit">Create Project</button>
           </form>

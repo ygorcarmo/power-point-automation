@@ -51,3 +51,7 @@ form {
 form>* {
   margin: 5px;
 }
+
+label {
+  text-align: start;
+}
