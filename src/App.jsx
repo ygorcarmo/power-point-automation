@@ -1,113 +1,20 @@
 import "./App.css";
-import PptxGenJS from "pptxgenjs";
-import lookLogo from "./assets/Look_Hor_CMYK_300.jpg";
+import createPptx from "./PowerPointCreator";
 
 function App() {
-  const createPptx = async (images, title) => {
-    let pptx = new PptxGenJS();
-    let firstSlide = pptx.addSlide();
-    firstSlide.addText(title, {
-      x: 1,
-      y: 2,
-      w: "80%",
-      h: 1,
-      fontSize: 36,
-      align: "center",
-    });
-
-    firstSlide.addImage({
-      x: 8.5,
-      y: 0.06,
-      w: 1.25,
-      h: 0.25,
-      path: lookLogo,
-      objectName: "animated gif",
-    });
-
-    let slide = pptx.addSlide();
-    slide.addImage({
-      x: 8.5,
-      y: 0.06,
-      w: 1.25,
-      h: 0.25,
-      path: lookLogo,
-      objectName: "animated gif",
-    });
-    let initialPosition = 1.13;
-    let space = 3;
-    let nextPosition = 0;
-    let imageCount = 0;
-    for (let x = 0; x < images.length; x++) {
-      if (x == 0 || imageCount == 0) {
-        slide.addText(images[x].name, {
-          x: initialPosition,
-          y: 0.2,
-          w: 1.5,
-          h: 1.5,
-        });
-
-        slide.addImage({
-          x: initialPosition,
-          y: 2,
-          w: 1.5,
-          h: 1.5,
-          path: images[x].base64,
-          objectName: "animated gif",
-        });
-        nextPosition = initialPosition + space;
-        imageCount++;
-      } else {
-        slide.addText(images[x].name, {
-          x: nextPosition,
-          y: 0.2,
-          w: 1.5,
-          h: 1.5,
-        });
-
-        slide.addImage({
-          x: nextPosition,
-          y: 2,
-          w: 1.5,
-          h: 1.5,
-          path: images[x].base64,
-          objectName: "animated gif",
-        });
-        nextPosition = nextPosition + space;
-        imageCount++;
-      }
-
-      if (imageCount == 3 && x <= images.length - 2) {
-        console.log(x);
-        imageCount = 0;
-        initialPosition = 1.13;
-        nextPosition = 0;
-        slide = pptx.addSlide();
-        slide.addImage({
-          x: 8.5,
-          y: 0.06,
-          w: 1.25,
-          h: 0.25,
-          path: lookLogo,
-          objectName: "animated gif",
-        });
-      }
-    }
-
-    pptx.writeFile({ fileName: `${title}.pptx` });
-  };
-
-  function fileBase64(file) {
-    return new Promise((resolve, reject) => {
-      let reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = function () {
-        resolve(reader.result);
-      };
-      reader.onerror = function (error) {
-        reject(error);
-      };
-    });
-  }
+  // removed this as it takes too much time
+  // function fileurl(file) {
+  //   return new Promise((resolve, reject) => {
+  //     let reader = new FileReader();
+  //     reader.readAsDataURL(file);
+  //     reader.onload = function () {
+  //       resolve(reader.result);
+  //     };
+  //     reader.onerror = function (error) {
+  //       reject(error);
+  //     };
+  //   });
+  // }
 
   return (
     <>
@@ -122,13 +29,20 @@ function App() {
             try {
               for (let i = 0; i < files.length; i++) {
                 const fileName = files[i].name;
-                let data = await fileBase64(files[i]);
+                // let data = await fileurl(files[i]);
+                let data = URL.createObjectURL(files[i]);
                 filesData.push({
                   name: fileName.substring(0, fileName.indexOf(".")),
-                  base64: data,
+                  url: data,
                 });
               }
-              createPptx(filesData, campaignName);
+              await createPptx(filesData, campaignName);
+              console.log("finished");
+
+              // free up some space
+              for (let n = 0; n < filesData.length; n++) {
+                URL.revokeObjectURL(filesData[n].url);
+              }
             } catch (e) {
               console.log(e);
             }
