@@ -1,6 +1,6 @@
 import lookLogo from "./assets/Look_Hor_CMYK_300.jpg";
 import PptxGenJS from "pptxgenjs";
-
+// centering image : https://github.com/gitbrent/PptxGenJS/issues/1033
 const slideWidth = 10;
 
 const lookLogoProps = {
@@ -40,21 +40,33 @@ export default async function createPptx(images, title) {
   let initialXPosition = 1.13;
   let imageYPosition = 2;
   let space = 3;
-  let nextPosition = 0;
+  let nextXPosition = 0;
   let imageCount = 0;
   let imageWidth = "20%";
   let height = "50%";
 
+  let prevLocation = "";
   let currentLocation = "";
-  let nextLocation = "";
 
   for (let x = 0; x < images.length; x++) {
+    let nextLocation = "";
+
     let currentFilename = images[x].name.split("-");
     currentLocation = currentFilename[1];
-    let nextFilename = "";
+
+    // within the array length
     if (x < images.length - 1) {
-      nextFilename = images[x + 1].name.split("-");
+      let nextFilename = images[x + 1].name.split("-");
       nextLocation = nextFilename[1];
+    }
+
+    if (prevLocation != currentLocation && imageCount > 1) {
+      imageCount = 0;
+      imageCount = 0;
+      initialXPosition = 1.13;
+      nextXPosition = 0;
+      slide = pptx.addSlide();
+      slide.addImage(lookLogoProps);
     }
 
     if (currentLocation != nextLocation && imageCount == 0) {
@@ -70,11 +82,17 @@ export default async function createPptx(images, title) {
         path: images[x].url,
         objectName: currentFilename[1],
       });
-      imageCount = 0;
-      initialXPosition = 1.13;
-      nextPosition = 0;
-      slide = pptx.addSlide();
-      slide.addImage(lookLogoProps);
+
+      prevLocation = currentLocation;
+
+      // last image no need to add a new slide
+      if (x < images.length - 1) {
+        imageCount = 0;
+        initialXPosition = 1.13;
+        nextXPosition = 0;
+        slide = pptx.addSlide();
+        slide.addImage(lookLogoProps);
+      }
     } else if (currentLocation == nextLocation && imageCount == 0) {
       slide.addText(
         currentFilename[0].concat("-", currentFilename[1]),
@@ -89,25 +107,29 @@ export default async function createPptx(images, title) {
         path: images[x].url,
         objectName: currentFilename[1],
       });
-      nextPosition = initialXPosition + space;
+
+      prevLocation = currentLocation;
+      nextXPosition = initialXPosition + space;
       imageCount++;
     } else {
       slide.addImage({
-        x: nextPosition,
+        x: nextXPosition,
         y: imageYPosition,
         w: imageWidth,
         h: height,
         path: images[x].url,
         objectName: currentFilename[1],
       });
-      nextPosition = nextPosition + space;
+
+      prevLocation = currentLocation;
+      nextXPosition = nextXPosition + space;
       imageCount++;
     }
 
     if (imageCount == 3 && x <= images.length - 2) {
       imageCount = 0;
       initialXPosition = 1.13;
-      nextPosition = 0;
+      nextXPosition = 0;
       slide = pptx.addSlide();
       slide.addImage(lookLogoProps);
     }
