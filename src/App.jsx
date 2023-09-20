@@ -33,7 +33,6 @@ function App() {
               try {
                 setLoading(true);
                 await createPptx(filesData, campaignName);
-                console.log("finished");
                 setLoading(false);
 
                 // free up some space
